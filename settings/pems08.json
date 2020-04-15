@@ -1,0 +1,17 @@
+{
+	"device": "cuda:0",
+	"data_device": "cuda:0",
+	"learn_rate": 0.001,
+	"batch_size": 32,
+	"epochs": 50,
+	"train_split": 0.8,
+	"n_weeks": 1,
+	"n_days": 1,
+	"n_hours": 3,
+	"n_vertices": 170,
+	"n_predictions": 12,
+	"points_per_hour": 12,
+	"adj_filepath": "data/pems04/distance.csv",
+	"data_filepath": "data/pems04/pems08.npz",
+	"saved_dir": "saved_model/pems08"
+}

@@ -1,0 +1,6 @@
+.idea
+.vscode
+notebooks
+saved_model
+data
+__pycache__/
