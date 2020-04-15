@@ -26,7 +26,7 @@ class GCN(Module):
 		super(GCN, self).__init__()
 		self.A = A
 		U, S, V = torch.svd(A)
-		self.adaptive_0 = Parameter(U[:, :5] @ S[:5].sqrt().diag(), requires_grad=True)
+		self.adaptive_0 = Parameter(U[:, :10] @ S[:10].sqrt().diag(), requires_grad=True)
 		self.adaptive_1 = Parameter(S[:10].sqrt().diag() @ V[:, :10].T, requires_grad=True)
 		self.W = Parameter(torch.zeros(2, in_channels, gcn_filters), requires_grad=True)
 		self.s_att = Attention(in_channels * in_timesteps, requires_value=False)
