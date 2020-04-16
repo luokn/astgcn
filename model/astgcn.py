@@ -25,9 +25,9 @@ class GCN(Module):
 	def __init__(self, in_channels, in_timesteps, gcn_filters, A):
 		super(GCN, self).__init__()
 		self.A = A
-		U, S, V = torch.svd(A)
-		self.adaptive_0 = Parameter(U[:, :10] @ S[:10].sqrt().diag(), requires_grad=True)
-		self.adaptive_1 = Parameter(S[:10].sqrt().diag() @ V[:, :10].T, requires_grad=True)
+		# U, S, V = torch.svd(A)
+		# self.adaptive_0 = Parameter(U[:, :10] @ S[:10].sqrt().diag(), requires_grad=True)
+		# self.adaptive_1 = Parameter(S[:10].sqrt().diag() @ V[:, :10].T, requires_grad=True)
 		self.W = Parameter(torch.zeros(2, in_channels, gcn_filters), requires_grad=True)
 		self.s_att = Attention(in_channels * in_timesteps, requires_value=False)
 		self.fc = Conv2d(2 * gcn_filters, gcn_filters, kernel_size=1)
@@ -36,17 +36,19 @@ class GCN(Module):
 		# In : B * V * C_i * T
 		# Out: B * V * C_o * T
 		att = self.s_att(x)  # => [B * V * V]
-		A_adapt = torch.relu(self.adaptive_0 @ self.adaptive_1)
-		A_adapt = torch.softmax(A_adapt, dim=-1)
-		# A_adapt = torch.dropout(A_adapt, 0.2, self.training)
+		# A_adapt = torch.relu(self.adaptive_0 @ self.adaptive_1)
+		# A_adapt = torch.softmax(A_adapt, dim=-1)
+		# # A_adapt = torch.dropout(A_adapt, 0.2, self.training)
 		x_out = x.permute(3, 0, 1, 2)  # => [T * B * V * C_i]
-		x_out = torch.cat([
-			# [B * V * V] @ [T * B * V * C_i] @ [C_i * C_o] => [T * B * V * C_o]
-			(att * self.A) @ x_out @ self.W[0],
-			(att * A_adapt) @ x_out @ self.W[1]
-		], dim=-1)  # => [T * B * V * 2C_o]
-		# [T * B * V * 2C_o] => [B * 2C_o * V * T] => [B * C_o * V * T]
-		x_out = self.fc(x_out.permute(1, 3, 2, 0))
+		# x_out = torch.cat([
+		# 	# [B * V * V] @ [T * B * V * C_i] @ [C_i * C_o] => [T * B * V * C_o]
+		# 	(att * self.A) @ x_out @ self.W[0],
+		# 	(att * A_adapt) @ x_out @ self.W[1]
+		# ], dim=-1)  # => [T * B * V * 2C_o]
+		# # [T * B * V * 2C_o] => [B * 2C_o * V * T] => [B * C_o * V * T]
+		# x_out = self.fc(x_out.permute(1, 3, 2, 0))
+		# return x_out.transpose(1, 2)
+		x_out = (att * self.V) @ x_out @ self.W
 		return x_out.transpose(1, 2)
 
 
