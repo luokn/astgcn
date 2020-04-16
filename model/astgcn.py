@@ -28,9 +28,9 @@ class GCN(Module):
 		# U, S, V = torch.svd(A)
 		# self.adaptive_0 = Parameter(U[:, :10] @ S[:10].sqrt().diag(), requires_grad=True)
 		# self.adaptive_1 = Parameter(S[:10].sqrt().diag() @ V[:, :10].T, requires_grad=True)
-		self.W = Parameter(torch.zeros(2, in_channels, gcn_filters), requires_grad=True)
+		self.W = Parameter(torch.zeros(in_channels, gcn_filters), requires_grad=True)
+		# self.fc = Conv2d(2 * gcn_filters, gcn_filters, kernel_size=1)
 		self.s_att = Attention(in_channels * in_timesteps, requires_value=False)
-		self.fc = Conv2d(2 * gcn_filters, gcn_filters, kernel_size=1)
 
 	def forward(self, x: FloatTensor):
 		# In : B * V * C_i * T
@@ -48,8 +48,8 @@ class GCN(Module):
 		# # [T * B * V * 2C_o] => [B * 2C_o * V * T] => [B * C_o * V * T]
 		# x_out = self.fc(x_out.permute(1, 3, 2, 0))
 		# return x_out.transpose(1, 2)
-		x_out = (att * self.V) @ x_out @ self.W
-		return x_out.transpose(1, 2)
+		x_out = (att * self.A) @ x_out @ self.W
+		return x_out.permute(1, 2, 3, 0)
 
 
 class ASTGCNBlock(Module):
