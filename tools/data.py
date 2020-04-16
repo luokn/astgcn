@@ -31,8 +31,8 @@ def normalize_sequences(X, split):
 
 def create_data_loaders(data_filepath, points_per_hour, batch_size, train_split, **kwargs):
 	assert 0 < train_split < 1
-	data_device = kwargs.get('data_device', 'cpu')
-	data = torch.from_numpy(numpy.load(data_filepath)['data']).to(data_device)
+	data = torch.from_numpy(numpy.load(data_filepath)['data'])
+	data = data.to(kwargs['data_device'])
 	X, Y = generate_sequences(data, points_per_hour)
 	split = int(len(Y) * train_split)
 	normalizers = normalize_sequences(X, split)
