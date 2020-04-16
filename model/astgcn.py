@@ -39,7 +39,7 @@ class GCN(Module):
 class ASTGCNBlock(Module):
 	def __init__(self, in_channels, in_timesteps, out_channels, n_vertices, gcn_filters, tcn_strides, **kwargs):
 		super(ASTGCNBlock, self).__init__()
-		self.t_att = Attention(n_vertices * in_channels, requires_value=True)
+		self.t_att = Attention(n_vertices * gcn_filters, requires_value=True)
 		self.c_att = Attention(n_vertices * in_timesteps, requires_value=True)
 		self.gcn = GCN(in_channels, in_timesteps, gcn_filters, kwargs['A'])
 		self.tcn = Conv2d(gcn_filters, out_channels, [1, 3], stride=[1, tcn_strides], padding=[0, 1])
@@ -52,10 +52,10 @@ class ASTGCNBlock(Module):
 		x_res = self.res(x.transpose(1, 2))
 		# [B * 1 * C * C] @ [B * V * C * T] => [B * V * C * T]
 		x = self.c_att(x.transpose(1, 2)).transpose(1, 2)
-		# [B * 1 * T * T] @ [B * V * T * C] => [B * V * T * C]
-		x = self.t_att(x.transpose(1, 3)).transpose(1, 3)
 		# [B * V * C_i * T] => [B * C_i * V * T] => [B * C' * V * T]
 		x = self.gcn(x)
+		# [B * 1 * T * T] @ [B * V * T * C] => [B * V * T * C]
+		x = self.t_att(x.transpose(1, 3)).transpose(1, 3)
 		# [B * C' * V * T] => [B * C_o * V * T]
 		x = self.tcn(x.transpose(1, 2)) + x_res
 		return self.ln(x.relu_().permute(0, 3, 2, 1)).permute(0, 2, 3, 1)
