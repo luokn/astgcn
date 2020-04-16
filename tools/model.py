@@ -30,9 +30,9 @@ def create_model(adj_filepath, points_per_hour, n_predictions, n_vertices, **kwa
 
 	astgcn = ASTGCN(submodules=submodules, **mixin).to(device)
 	for name, params in astgcn.named_parameters(recurse=True):
-		if 'adaptive_' in name:
-			print(f'skip init {name}')
-			continue
+		# if 'adaptive_' in name:
+		# 	print(f'skip init {name}')
+		# 	continue
 		if params.dim() > 1:
 			init.xavier_uniform_(params)
 		else:
