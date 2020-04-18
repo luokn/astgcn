@@ -26,7 +26,7 @@ def create_model(adj_filepath, points_per_hour, n_predictions, n_vertices, **kwa
 				'tcn_strides': 1,
 			}
 		]
-	}] * 5
+	}] * 6
 
 	astgcn = ASTGCN(submodules=submodules, **mixin).to(device)
 	for name, params in astgcn.named_parameters(recurse=True):
