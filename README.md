@@ -1,5 +1,5 @@
 
-## AAAI 2019 论文ASTGCN的Pytorch版本
+## AAAI 2019 ASTGCN Pytorch版本
 
 
  
